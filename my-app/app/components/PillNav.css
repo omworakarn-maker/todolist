@@ -1,0 +1,133 @@
+.pill-nav-container {
+  position: relative;
+  width: 100%;
+  z-index: 99;
+}
+
+.pill-nav {
+  --nav-h: 40px;
+  --pill-pad-x: 16px;
+  --pill-gap: 4px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.pill-nav-items {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--nav-h);
+  background: #f3f4f6;
+  border-radius: 9999px;
+  padding: 3px;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.pill-list {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--pill-gap);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.pill-list > li {
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 0 var(--pill-pad-x);
+  background: var(--pill-bg, #ffffff);
+  color: var(--pill-text, #374151);
+  text-decoration: none;
+  border-radius: 9999px;
+  box-sizing: border-box;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.pill .hover-circle {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  border-radius: 50%;
+  background: var(--base, #2563eb);
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.pill .label-stack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.pill .pill-label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  will-change: transform;
+}
+
+.pill .pill-label-hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--hover-text, #ffffff);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  will-change: transform, opacity;
+}
+
+.pill.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.pill.is-active .pill-label {
+  color: #ffffff;
+}
+
+.pill.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  z-index: 4;
+}
