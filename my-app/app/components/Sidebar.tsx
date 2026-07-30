@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Config } from '../backoffice/signup/config'
 import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import PillNav from './PillNav'
 
 export default function Sidebar() {
@@ -62,14 +63,21 @@ export default function Sidebar() {
     <header className="w-full bg-white border-b border-gray-200 text-gray-900 px-6 py-3 shadow-sm sticky top-0 z-50 flex items-center justify-between gap-4">
       {/* LEFT: LOGO / BRAND & USER */}
       <div className="flex items-center gap-4">
-        <div className="text-xl font-bold text-gray-900">
+        <Link 
+          href="/backoffice/home/dashboard" 
+          className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer"
+        >
           Todo List
-        </div>
+        </Link>
         <div className="h-5 w-[1px] bg-gray-200 hidden sm:block"></div>
-        <div className="flex items-center text-gray-600 font-medium text-sm">
+        <Link 
+          href="/backoffice/home/profile" 
+          className="flex items-center text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors cursor-pointer"
+          title="แก้ไขข้อมูลส่วนตัว"
+        >
           <i className="fa fa-user mr-2 text-blue-600"></i>
           {name || 'Loading...'}
-        </div>
+        </Link>
       </div>
 
       {/* CENTER: PILL NAVIGATION */}

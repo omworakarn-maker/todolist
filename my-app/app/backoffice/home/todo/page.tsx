@@ -81,7 +81,7 @@ const [status, setStatus] = useState('all')
       }
       if (id === 0) {
        const url = Config.apiUrl + '/todo/create'
-       await axios.put(url, payload, { headers })
+       await axios.post(url, payload, { headers })
       } else {
         const urlEdit = Config.apiUrl + '/todo/update/' + id
         await axios.put(urlEdit, payload, { headers })
