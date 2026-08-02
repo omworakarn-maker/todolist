@@ -80,22 +80,23 @@ const MemberController = {
             const member_id = payload.id
 
             const oldMember = await prisma.member.findFirst({
-            where: {
-                id: member_id
-            }
+                where: { id: member_id }
             })
 
-            const hashedPassword = await bcrypt.hash(password, 10)
+            let newPassword = oldMember.password
+            if (password && password.trim() !== '') {
+                newPassword = await bcrypt.hash(password, 10)
+            }
 
             await prisma.member.update({
-            data: {
-                name: name,
-                username: username,
-                password: password == '' ? oldMember.password : hashedPassword
-            },
-            where: {
-                id: member_id
-            }
+                data: {
+                    name: name,
+                    username: username,
+                    password: newPassword
+                },
+                where: {
+                    id: member_id
+                }
             })
 
             res.json({ message: 'success' })

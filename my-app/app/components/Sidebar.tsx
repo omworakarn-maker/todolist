@@ -56,7 +56,7 @@ export default function Sidebar() {
   const navItems = [
     { label: 'Dashboard', href: '/backoffice/home/dashboard', icon: 'fa fa-file-alt' },
     { label: 'บันทึกงาน', href: '/backoffice/home/todo', icon: 'fa fa-list' },
-    { label: 'รายงานสรุป', href: '/dashboard/home/report', icon: 'fa fa-chart-bar' }
+    { label: 'รายงานสรุป', href: '/backoffice/home/report', icon: 'fa fa-chart-bar' }
   ]
 
   return (
