@@ -99,9 +99,12 @@ app.delete('/remove/:id', (req, res) => {
   res.json({ id: id });
 });
 
-const server = app.listen(port, () => {
-    console.log(`server is running on localhost:${port}`);
-});
+let server;
+if (process.env.NODE_ENV !== 'production') {
+    server = app.listen(port, () => {
+        console.log(`server is running on localhost:${port}`);
+    });
+}
 
 // Graceful shutdown for watch mode and other termination signals
 const shutdown = (signal) => {
@@ -187,3 +190,5 @@ app.post('/upload', (req, res) => {
     })
   })
 })
+
+module.exports = app;
