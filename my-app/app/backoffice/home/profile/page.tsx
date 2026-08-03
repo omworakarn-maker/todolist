@@ -1,14 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
-import { Config } from '../../signup/config'
 import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation'
+import { supabase } from '../../../../lib/supabase'
 
 export default function Profile() {
   const [name, setName] = useState('')
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -25,26 +24,23 @@ export default function Profile() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const url = Config.apiUrl + '/members/info'
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const res = await axios.get(url, { headers })
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) throw error
 
-      if (res.status === 200) {
-        setName(res.data.name || '')
-        const fetchedUsername = res.data.username || ''
-        setUsername(fetchedUsername)
+      if (user) {
+        setName(user.user_metadata?.name || '')
+        setEmail(user.email || '')
 
         // Load saved profile image from localStorage
-        const savedImage = localStorage.getItem(`profile_img_${fetchedUsername}`)
+        const savedImage = localStorage.getItem(`profile_img_${user.email}`)
         if (savedImage) {
           setProfileImage(savedImage)
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
@@ -77,8 +73,8 @@ export default function Profile() {
 
   const handleRemoveImage = () => {
     setProfileImage(null)
-    if (username) {
-      localStorage.removeItem(`profile_img_${username}`)
+    if (email) {
+      localStorage.removeItem(`profile_img_${email}`)
     }
   }
 
@@ -105,23 +101,26 @@ export default function Profile() {
     }
 
     try {
-      const payload: { name: string; username: string; password?: string } = {
-        name,
-        username
+      const updateData: any = {
+        data: { name }
+      }
+
+      // If email changed, we can update it (Supabase will send confirmation email by default)
+      if (email) {
+        updateData.email = email
       }
 
       if (password.trim()) {
-        payload.password = password
+        updateData.password = password
       }
 
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const url = Config.apiUrl + '/members/update'
-      await axios.put(url, payload, { headers })
+      const { error } = await supabase.auth.updateUser(updateData)
+
+      if (error) throw error
 
       // Save profile image to localStorage
-      if (profileImage && username) {
-        localStorage.setItem(`profile_img_${username}`, profileImage)
+      if (profileImage && email) {
+        localStorage.setItem(`profile_img_${email}`, profileImage)
       }
 
       Swal.fire({
@@ -134,10 +133,10 @@ export default function Profile() {
 
       setPassword('')
       setConfirmPassword('')
-    } catch (err) {
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
@@ -223,7 +222,7 @@ export default function Profile() {
               </h2>
             </div>
             <p className="text-slate-500 text-xs md:text-sm font-mono font-semibold">
-              @{username || 'username'}
+              {email || 'email'}
             </p>
 
             <div className="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -272,16 +271,16 @@ export default function Profile() {
               />
             </div>
 
-            {/* Username Input */}
+            {/* Email Input */}
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                ชื่อผู้ใช้งาน (Username)
+                อีเมล (Email)
               </label>
               <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="กรอกชื่อผู้ใช้งาน..."
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="กรอกอีเมล..."
                 className="w-full px-4 py-3.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 text-sm md:text-base font-semibold text-slate-900 transition-all bg-white placeholder:text-slate-400"
               />
             </div>

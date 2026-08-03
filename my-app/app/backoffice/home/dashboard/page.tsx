@@ -1,12 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Config } from '../../signup/config'
+import { supabase } from '../../../../lib/supabase'
 import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
 export default function Dashboard() {
   const [countWait, setCountWait] = useState(0)
   const [countDoing, setCountDoing] = useState(0)
@@ -29,22 +27,38 @@ export default function Dashboard() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
-      const headers = {
-        'Authorization': 'Bearer ' + token
-      }
-      const url = Config.apiUrl + '/todo/dashboard'
-      const res = await axios.get(url, { headers })
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError) throw userError
 
-      if (res.status === 200) {
-        setCountWait(res.data.countWait || 0)
-        setCountDoing(res.data.countDoing || 0)
-        setCountSuccess(res.data.countSuccess || 0)
+      if (!user) return
+
+      // Fetch all counts in parallel or fetch all todos and group them
+      // Since it's a small app, fetching all counts is fine, or fetching all todos is fine
+      // Let's use count queries
+      const getCount = async (status: string) => {
+        const { count, error } = await supabase
+          .from('Todo')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('status', status)
+        
+        if (error) throw error
+        return count || 0
       }
-    } catch (err) {
+
+      const [waitCount, doingCount, successCount] = await Promise.all([
+        getCount('use'),
+        getCount('doing'),
+        getCount('success')
+      ])
+
+      setCountWait(waitCount)
+      setCountDoing(doingCount)
+      setCountSuccess(successCount)
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })

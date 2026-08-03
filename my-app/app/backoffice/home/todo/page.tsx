@@ -1,7 +1,6 @@
 'use client'
 
-import { Config } from '../../signup/config'
-import axios from 'axios'
+import { supabase } from '../../../../lib/supabase'
 import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
 
@@ -19,6 +18,7 @@ export default function Todo() {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const statusList = [
     { value: 'all', text: 'ทั้งหมด', color: 'slate' },
@@ -28,12 +28,20 @@ export default function Todo() {
   ]
 
   useEffect(() => {
-    fetchData()
+    const initUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+      }
+    }
+    initUser()
   }, [])
 
   useEffect(() => {
-    filterData()
-  }, [status])
+    if (userId) {
+      filterData()
+    }
+  }, [status, userId])
 
   const filterData = async () => {
     if (status === 'all') {
@@ -42,17 +50,22 @@ export default function Todo() {
     }
     setLoading(true)
     try {
-      const url = Config.apiUrl + '/todo/filter/' + status
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const res = await axios.get(url, { headers })
-      if (res.status === 200) {
-        setTodos(res.data)
-      }
-    } catch (err) {
+      let queryStatus = status
+      if (status === 'wait') queryStatus = 'use'
+
+      const { data, error } = await supabase
+        .from('Todo')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', queryStatus)
+        .order('id', { ascending: false })
+
+      if (error) throw error
+      setTodos(data || [])
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
@@ -62,19 +75,21 @@ export default function Todo() {
   }
 
   const fetchData = async () => {
+    if (!userId) return
     setLoading(true)
     try {
-      const url = Config.apiUrl + '/todo/list'
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const res = await axios.get(url, { headers })
-      if (res.status === 200) {
-        setTodos(res.data)
-      }
-    } catch (err) {
+      const { data, error } = await supabase
+        .from('Todo')
+        .select('*')
+        .eq('user_id', userId)
+        .order('id', { ascending: false })
+
+      if (error) throw error
+      setTodos(data || [])
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
@@ -95,16 +110,20 @@ export default function Todo() {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const payload = { name, remark }
-
       if (id === 0) {
-        const url = Config.apiUrl + '/todo/create'
-        await axios.post(url, payload, { headers })
+        const { error } = await supabase.from('Todo').insert({
+          name,
+          remark,
+          status: 'use',
+          user_id: userId
+        })
+        if (error) throw error
       } else {
-        const urlEdit = Config.apiUrl + '/todo/update/' + id
-        await axios.put(urlEdit, payload, { headers })
+        const { error } = await supabase.from('Todo').update({
+          name,
+          remark
+        }).eq('id', id).eq('user_id', userId)
+        if (error) throw error
       }
 
       Swal.fire({
@@ -117,10 +136,10 @@ export default function Todo() {
 
       fetchData()
       handleCancelEdit()
-    } catch (err) {
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
@@ -157,10 +176,8 @@ export default function Todo() {
 
     if (confirmButton.isConfirmed) {
       try {
-        const url = Config.apiUrl + '/todo/remove/' + targetId
-        const token = localStorage.getItem('token')
-        const headers = { 'Authorization': 'Bearer ' + token }
-        await axios.delete(url, { headers })
+        const { error } = await supabase.from('Todo').delete().eq('id', targetId).eq('user_id', userId)
+        if (error) throw error
         
         Swal.fire({
           title: 'ลบสำเร็จ',
@@ -171,10 +188,10 @@ export default function Todo() {
         })
 
         fetchData()
-      } catch (err) {
+      } catch (err: any) {
         Swal.fire({
           title: 'เกิดข้อผิดพลาด',
-          text: (err as Error).message,
+          text: err.message,
           icon: 'error',
           confirmButtonColor: '#4f46e5'
         })
@@ -184,17 +201,13 @@ export default function Todo() {
 
   const updateStatus = async (targetId: number, newStatus: string) => {
     try {
-      const url = Config.apiUrl + '/todo/updateStatus/' + targetId
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const payload = { status: newStatus }
-
-      await axios.put(url, payload, { headers })
+      const { error } = await supabase.from('Todo').update({ status: newStatus }).eq('id', targetId).eq('user_id', userId)
+      if (error) throw error
       fetchData()
-    } catch (err) {
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })

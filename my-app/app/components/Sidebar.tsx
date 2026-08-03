@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Config } from '../backoffice/signup/config'
+
 import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PillNav from './PillNav'
+import { supabase } from '../../lib/supabase'
 
 export default function Sidebar() {
   const [name, setName] = useState('')
@@ -14,23 +14,19 @@ export default function Sidebar() {
 
   const fetchData = async () => {
     try {
-      const url = Config.apiUrl + '/members/info'
-      const token = localStorage.getItem('token')
-      const headers = {
-        'Authorization': 'Bearer ' + token
-      }
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error) throw error
 
-      const res = await axios.get(url, { headers })
-
-      if (res.status === 200) {
-        setName(res.data.name)
+      if (user) {
+        // We stored the name in user metadata during sign up
+        setName(user.user_metadata?.name || user.email?.split('@')[0] || 'User')
+      } else {
+        router.push('/backoffice/signin')
       }
-    } catch (err) {
-      Swal.fire({
-        title: 'error',
-        text: (err as Error).message,
-        icon: 'error'
-      })
+    } catch (err: any) {
+      console.error(err)
+      router.push('/backoffice/signin')
     }
   }
 
@@ -48,7 +44,7 @@ export default function Sidebar() {
     })
 
     if (confirmButton.isConfirmed) {
-      localStorage.removeItem('token')
+      await supabase.auth.signOut()
       router.push('/backoffice/signin')
     }
   }

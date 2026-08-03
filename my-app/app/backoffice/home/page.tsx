@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Config } from '../signup/config'
+import { supabase } from '../../../lib/supabase'
 import Link from 'next/link'
-import Swal from 'sweetalert2'
 
 export default function Home() {
   const [name, setName] = useState('')
@@ -16,13 +14,11 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const url = Config.apiUrl + '/members/info'
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const res = await axios.get(url, { headers })
-      
-      if (res.status === 200) {
-        setName(res.data.name)
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) throw error
+
+      if (user) {
+        setName(user.user_metadata?.name || user.email?.split('@')[0] || '')
       }
     } catch (err) {
       console.error(err)

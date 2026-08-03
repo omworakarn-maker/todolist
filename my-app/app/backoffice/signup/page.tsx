@@ -3,14 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
-import { Config } from './config'
-import axios from 'axios'
+
+import { supabase } from '../../../lib/supabase'
 import Particles from '../Particles'
 import './signup.css'
 
 export default function SignUp() {
   const [name, setName] = useState('')
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -20,28 +20,35 @@ export default function SignUp() {
   const handleSignUp = async () => {
     setIsLoading(true)
     try {
-      const url = Config.apiUrl + '/members/signup'
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            name: name
+          }
+        }
+      })
 
-      const payload = {
-        name: name,
-        username: username,
-        password: password
+      if (error) {
+        throw error
       }
 
-      const res = await axios.post(url, payload)
-
-      if (res.status === 200) {
-        localStorage.setItem('token', res.data.token)
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        router.push('/backoffice/signin')
-      }
-    } catch (err: unknown) {
       Swal.fire({
-        title: 'error',
-        text: (err as Error).message,
+        title: 'สำเร็จ',
+        text: 'ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบ (หรือยืนยันอีเมลถ้าตั้งค่าไว้)',
+        icon: 'success',
+        timer: 2000
+      })
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      router.push('/backoffice/signin')
+    } catch (err: any) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message,
         icon: 'error'
       })
-    }finally {
+    } finally {
       setIsLoading(false)
     }
   }
@@ -87,12 +94,12 @@ export default function SignUp() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="email">Email</label>
               <input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 

@@ -1,7 +1,6 @@
 'use client'
 
-import { Config } from '../../signup/config'
-import axios from 'axios'
+import { supabase } from '../../../../lib/supabase'
 import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
 
@@ -15,25 +14,40 @@ interface TodoItem {
 export default function Report() {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchData()
+    const initUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+      }
+    }
+    initUser()
   }, [])
 
+  useEffect(() => {
+    if (userId) {
+      fetchData()
+    }
+  }, [userId])
+
   const fetchData = async () => {
+    if (!userId) return
     setLoading(true)
     try {
-      const url = Config.apiUrl + '/todo/list'
-      const token = localStorage.getItem('token')
-      const headers = { 'Authorization': 'Bearer ' + token }
-      const res = await axios.get(url, { headers })
-      if (res.status === 200) {
-        setTodos(res.data)
-      }
-    } catch (err) {
+      const { data, error } = await supabase
+        .from('Todo')
+        .select('*')
+        .eq('user_id', userId)
+        .order('id', { ascending: false })
+
+      if (error) throw error
+      setTodos(data || [])
+    } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: (err as Error).message,
+        text: err.message,
         icon: 'error',
         confirmButtonColor: '#4f46e5'
       })
