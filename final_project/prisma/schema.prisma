@@ -11,8 +11,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model Book {
@@ -26,12 +26,12 @@ model Todo {
   name      String
   remark    String
   status    String @default("use")
-  member_id Int
+  member_id String
   member    Member @relation(fields: [member_id], references: [id])
 }
 
 model Member {
-  id       Int    @id @default(autoincrement())
+  id       String    @id @default(uuid())
   name     String
   username String
   password String
