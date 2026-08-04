@@ -27,7 +27,6 @@ model Todo {
   remark    String
   status    String @default("use")
   member_id String
-  member    Member @relation(fields: [member_id], references: [id])
 }
 
 model Member {
@@ -35,5 +34,4 @@ model Member {
   name     String
   username String
   password String
-  Todos    Todo[]
 }
