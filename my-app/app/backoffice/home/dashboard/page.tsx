@@ -39,7 +39,7 @@ export default function Dashboard() {
         const { count, error } = await supabase
           .from('Todo')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
+          .eq('member_id', user.id)
           .eq('status', status)
         
         if (error) throw error

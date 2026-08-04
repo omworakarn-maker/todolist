@@ -39,7 +39,7 @@ export default function Report() {
       const { data, error } = await supabase
         .from('Todo')
         .select('*')
-        .eq('user_id', userId)
+        .eq('member_id', userId)
         .order('id', { ascending: false })
 
       if (error) throw error

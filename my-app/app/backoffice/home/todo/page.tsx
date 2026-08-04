@@ -56,7 +56,7 @@ export default function Todo() {
       const { data, error } = await supabase
         .from('Todo')
         .select('*')
-        .eq('user_id', userId)
+        .eq('member_id', userId)
         .eq('status', queryStatus)
         .order('id', { ascending: false })
 
@@ -81,7 +81,7 @@ export default function Todo() {
       const { data, error } = await supabase
         .from('Todo')
         .select('*')
-        .eq('user_id', userId)
+        .eq('member_id', userId)
         .order('id', { ascending: false })
 
       if (error) throw error
@@ -115,14 +115,14 @@ export default function Todo() {
           name,
           remark,
           status: 'use',
-          user_id: userId
+          member_id: userId
         })
         if (error) throw error
       } else {
         const { error } = await supabase.from('Todo').update({
           name,
           remark
-        }).eq('id', id).eq('user_id', userId)
+        }).eq('id', id).eq('member_id', userId)
         if (error) throw error
       }
 
@@ -176,7 +176,7 @@ export default function Todo() {
 
     if (confirmButton.isConfirmed) {
       try {
-        const { error } = await supabase.from('Todo').delete().eq('id', targetId).eq('user_id', userId)
+        const { error } = await supabase.from('Todo').delete().eq('id', targetId).eq('member_id', userId)
         if (error) throw error
         
         Swal.fire({
@@ -201,7 +201,7 @@ export default function Todo() {
 
   const updateStatus = async (targetId: number, newStatus: string) => {
     try {
-      const { error } = await supabase.from('Todo').update({ status: newStatus }).eq('id', targetId).eq('user_id', userId)
+      const { error } = await supabase.from('Todo').update({ status: newStatus }).eq('id', targetId).eq('member_id', userId)
       if (error) throw error
       fetchData()
     } catch (err: any) {
