@@ -16,11 +16,11 @@ export default function SuccessModal({
   busy = false
 }: SuccessModalProps) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-md">
-      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/20 bg-white p-8 text-center shadow-2xl md:p-10">
+    <div className="animated-alert-backdrop">
+      <div className="animated-alert-card relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/20 bg-white p-8 text-center shadow-2xl md:p-10">
         <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-emerald-400" />
 
-        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50 ring-8 ring-emerald-50/60">
+        <div className="animated-alert-icon mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50 ring-8 ring-emerald-50/60">
           <svg className="h-12 w-12 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 4 4L19 6" />
           </svg>

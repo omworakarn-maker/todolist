@@ -2,8 +2,8 @@
 
 import { supabase } from '../../../../lib/supabase'
 import { useEffect, useState } from 'react'
-import Swal from 'sweetalert2'
 import SuccessModal from '../../../components/SuccessModal'
+import { useAnimatedAlert } from '../../../components/AnimatedAlert'
 
 interface TodoItem {
   id: number
@@ -21,6 +21,7 @@ export default function Todo() {
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [deleteSuccess, setDeleteSuccess] = useState(false)
+  const { showAlert } = useAnimatedAlert()
 
   const statusList = [
     { value: 'all', text: 'ทั้งหมด', color: 'slate' },
@@ -65,7 +66,7 @@ export default function Todo() {
       if (error) throw error
       setTodos(data || [])
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',
@@ -89,7 +90,7 @@ export default function Todo() {
       if (error) throw error
       setTodos(data || [])
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',
@@ -103,7 +104,7 @@ export default function Todo() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
-      Swal.fire({
+      showAlert({
         title: 'กรุณากรอกชื่อสิ่งที่ต้องทำ',
         icon: 'warning',
         confirmButtonColor: '#4f46e5'
@@ -128,7 +129,7 @@ export default function Todo() {
         if (error) throw error
       }
 
-      Swal.fire({
+      showAlert({
         title: id === 0 ? 'สร้างรายการสำเร็จ' : 'แก้ไขรายการสำเร็จ',
         text: 'ข้อมูลถูกบันทึกเรียบร้อยแล้ว',
         icon: 'success',
@@ -139,7 +140,7 @@ export default function Todo() {
       fetchData()
       handleCancelEdit()
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',
@@ -162,7 +163,7 @@ export default function Todo() {
   }
 
   const handleRemove = async (targetId: number) => {
-    const confirmButton = await Swal.fire({
+    const confirmButton = await showAlert({
       title: 'ยืนยันการลบรายการ',
       text: 'คุณต้องการลบรายการนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้',
       icon: 'warning',
@@ -184,7 +185,7 @@ export default function Todo() {
         setDeleteSuccess(true)
         fetchData()
       } catch (err: any) {
-        Swal.fire({
+        showAlert({
           title: 'เกิดข้อผิดพลาด',
           text: err.message,
           icon: 'error',
@@ -200,7 +201,7 @@ export default function Todo() {
       if (error) throw error
       fetchData()
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',

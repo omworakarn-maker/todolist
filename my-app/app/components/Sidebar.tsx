@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 
-import Swal from 'sweetalert2'
+import { useAnimatedAlert } from './AnimatedAlert'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PillNav from './PillNav'
@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase'
 export default function Sidebar() {
   const [name, setName] = useState('')
   const router = useRouter()
+  const { showAlert } = useAnimatedAlert()
 
   const fetchData = async () => {
     try {
@@ -35,12 +36,14 @@ export default function Sidebar() {
   }, [])
 
   const signOut = async () => {
-    const confirmButton = await Swal.fire({
+    const confirmButton = await showAlert({
       title: 'Signout',
       text: 'คุณต้องการออกจากระบบใช่ไหม',
       icon: 'question',
       showConfirmButton: true,
       showCancelButton: true
+      ,confirmButtonText: 'ออกจากระบบ',
+      cancelButtonText: 'ยกเลิก'
     })
 
     if (confirmButton.isConfirmed) {

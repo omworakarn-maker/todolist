@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Swal from 'sweetalert2'
 import SuccessModal from '../../components/SuccessModal'
+import { useAnimatedAlert } from '../../components/AnimatedAlert'
 
 import { supabase } from '../../../lib/supabase'
 import Particles from '../Particles'
@@ -18,6 +18,7 @@ export default function SignUp() {
   const [isSuccess, setIsSuccess] = useState(false)
 
   const router = useRouter()
+  const { showAlert } = useAnimatedAlert()
 
   const handleSignUp = async () => {
     setIsLoading(true)
@@ -38,7 +39,7 @@ export default function SignUp() {
 
       setIsSuccess(true)
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error'

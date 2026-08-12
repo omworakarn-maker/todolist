@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Swal from 'sweetalert2'
 import SuccessModal from '../../components/SuccessModal'
+import { useAnimatedAlert } from '../../components/AnimatedAlert'
 
 import { supabase } from '../../../lib/supabase'
 import Particles from '../Particles'
@@ -16,6 +16,7 @@ export default function SignIn() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const { showAlert } = useAnimatedAlert()
 
   const handleSignIn = async () => {
     setIsLoading(true)
@@ -33,7 +34,7 @@ export default function SignIn() {
       await new Promise((resolve) => setTimeout(resolve, 1400))
       router.replace('/backoffice/home/todo')
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'Sign In Failed',
         text: err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
         icon: 'warning',

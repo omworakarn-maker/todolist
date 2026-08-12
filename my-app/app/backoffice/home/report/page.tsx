@@ -2,7 +2,7 @@
 
 import { supabase } from '../../../../lib/supabase'
 import { useEffect, useState } from 'react'
-import Swal from 'sweetalert2'
+import { useAnimatedAlert } from '../../../components/AnimatedAlert'
 
 interface TodoItem {
   id: number
@@ -15,6 +15,7 @@ export default function Report() {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const { showAlert } = useAnimatedAlert()
 
   useEffect(() => {
     const initUser = async () => {
@@ -45,7 +46,7 @@ export default function Report() {
       if (error) throw error
       setTodos(data || [])
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',

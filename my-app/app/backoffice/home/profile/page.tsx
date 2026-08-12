@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Swal from 'sweetalert2'
+import { useAnimatedAlert } from '../../../components/AnimatedAlert'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 
@@ -16,6 +16,7 @@ export default function Profile() {
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const { showAlert } = useAnimatedAlert()
 
   useEffect(() => {
     fetchData()
@@ -38,7 +39,7 @@ export default function Profile() {
         }
       }
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',
@@ -54,7 +55,7 @@ export default function Profile() {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({
+      showAlert({
         title: 'ขนาดไฟล์ใหญ่เกินไป',
         text: 'โปรดเลือกรูปภาพที่มีขนาดไม่เกิน 5MB',
         icon: 'warning',
@@ -82,7 +83,7 @@ export default function Profile() {
     e.preventDefault()
 
     if (!name.trim()) {
-      Swal.fire({
+      showAlert({
         title: 'กรุณากรอกชื่อ-นามสกุล',
         icon: 'warning',
         confirmButtonColor: '#4f46e5'
@@ -91,7 +92,7 @@ export default function Profile() {
     }
 
     if (password && password !== confirmPassword) {
-      Swal.fire({
+      showAlert({
         title: 'รหัสผ่านไม่ตรงกัน',
         text: 'โปรดป้อนยืนยันรหัสผ่านใหม่ให้ตรงกัน',
         icon: 'warning',
@@ -123,7 +124,7 @@ export default function Profile() {
         localStorage.setItem(`profile_img_${email}`, profileImage)
       }
 
-      Swal.fire({
+      showAlert({
         title: 'บันทึกข้อมูลเรียบร้อย',
         text: 'อัปเดตข้อมูลส่วนตัวและรูปโปรไฟล์สำเร็จแล้ว',
         icon: 'success',
@@ -134,7 +135,7 @@ export default function Profile() {
       setPassword('')
       setConfirmPassword('')
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
-import Swal from 'sweetalert2'
+import { useAnimatedAlert } from '../../../components/AnimatedAlert'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 export default function Dashboard() {
@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   
   const router = useRouter()
+  const { showAlert } = useAnimatedAlert()
 
   useEffect(() => {
     fetchData()
@@ -56,7 +57,7 @@ export default function Dashboard() {
       setCountDoing(doingCount)
       setCountSuccess(successCount)
     } catch (err: any) {
-      Swal.fire({
+      showAlert({
         title: 'เกิดข้อผิดพลาด',
         text: err.message,
         icon: 'error',
