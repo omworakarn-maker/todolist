@@ -3,6 +3,7 @@
 import { supabase } from '../../../../lib/supabase'
 import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
+import SuccessModal from '../../../components/SuccessModal'
 
 interface TodoItem {
   id: number
@@ -19,6 +20,7 @@ export default function Todo() {
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [deleteSuccess, setDeleteSuccess] = useState(false)
 
   const statusList = [
     { value: 'all', text: 'ทั้งหมด', color: 'slate' },
@@ -179,14 +181,7 @@ export default function Todo() {
         const { error } = await supabase.from('Todo').delete().eq('id', targetId).eq('member_id', userId)
         if (error) throw error
         
-        Swal.fire({
-          title: 'ลบสำเร็จ',
-          text: 'ลบรายการเรียบร้อยแล้ว',
-          icon: 'success',
-          timer: 1000,
-          showConfirmButton: false
-        })
-
+        setDeleteSuccess(true)
         fetchData()
       } catch (err: any) {
         Swal.fire({
@@ -242,6 +237,14 @@ export default function Todo() {
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFC] text-slate-800 p-6 md:p-10 font-sans">
+      {deleteSuccess && (
+        <SuccessModal
+          title="ลบงานสำเร็จ"
+          message="รายการงานถูกลบออกจาก To-Do List เรียบร้อยแล้ว"
+          buttonText="กลับไปดูรายการงาน"
+          onClose={() => setDeleteSuccess(false)}
+        />
+      )}
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Minimal Header */}

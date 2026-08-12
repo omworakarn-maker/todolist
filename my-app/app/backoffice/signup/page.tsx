@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import SuccessModal from '../../components/SuccessModal'
 
 import { supabase } from '../../../lib/supabase'
 import Particles from '../Particles'
@@ -14,6 +15,7 @@ export default function SignUp() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const router = useRouter()
 
@@ -34,14 +36,7 @@ export default function SignUp() {
         throw error
       }
 
-      Swal.fire({
-        title: 'สำเร็จ',
-        text: 'ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบ (หรือยืนยันอีเมลถ้าตั้งค่าไว้)',
-        icon: 'success',
-        timer: 2000
-      })
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.push('/backoffice/signin')
+      setIsSuccess(true)
     } catch (err: any) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
@@ -59,6 +54,14 @@ export default function SignUp() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
+      {isSuccess && (
+        <SuccessModal
+          title="สมัครสมาชิกสำเร็จ"
+          message={`เราได้ส่งลิงก์ยืนยันไปที่ ${email} กรุณาตรวจสอบอีเมลก่อนเข้าสู่ระบบ`}
+          buttonText="ไปหน้าเข้าสู่ระบบ"
+          onClose={() => router.push('/backoffice/signin')}
+        />
+      )}
 
       {/* PARTICLES BACKGROUND */}
       <div className="absolute inset-0 z-0">

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import SuccessModal from '../../components/SuccessModal'
 
 import { supabase } from '../../../lib/supabase'
 import Particles from '../Particles'
@@ -14,6 +15,7 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSignIn = async () => {
     setIsLoading(true)
@@ -27,8 +29,9 @@ export default function SignIn() {
         throw error
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.push('/backoffice/home')
+      setIsSuccess(true)
+      await new Promise((resolve) => setTimeout(resolve, 1400))
+      router.replace('/backoffice/home/todo')
     } catch (err: any) {
       Swal.fire({
         title: 'Sign In Failed',
@@ -47,6 +50,13 @@ export default function SignIn() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
+      {isSuccess && (
+        <SuccessModal
+          title="เข้าสู่ระบบสำเร็จ"
+          message="ยินดีต้อนรับกลับมา ระบบพร้อมให้คุณจัดการรายการงานแล้ว"
+          busy
+        />
+      )}
 
       {/* PARTICLES BACKGROUND */}
       <div className="absolute inset-0 z-0">
